@@ -1,0 +1,3 @@
+﻿  UI_Vaja1.cpp
+E:\Faks\2.Letnik\2.Semester\Umetna_Inteligenca\01.Vaja-Lokalni_iskalni_alg\UI_Vaja1\UI_Vaja1\UI_Vaja1.cpp(26,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  UI_Vaja1.vcxproj -> E:\Faks\2.Letnik\2.Semester\Umetna_Inteligenca\01.Vaja-Lokalni_iskalni_alg\UI_Vaja1\Debug\UI_Vaja1.exe
