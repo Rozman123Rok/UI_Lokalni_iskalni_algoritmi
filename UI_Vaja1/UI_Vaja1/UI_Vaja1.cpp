@@ -8,6 +8,7 @@
         genetic algorithm
         
         POGLEJ DODATNE PARAMETRE!
+        ! NE POZABI ZBRISAT HILL CLIMB !
 */
 
 #include <iostream>
@@ -22,7 +23,13 @@ int izracun_hevristike_HILLC(std::vector<int>k, int velikost);
 void HillClimbing(std::vector<int>& kraljice, int velikost, int st_interakcij);
 void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij);
 void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij);
+void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k);
 
+struct sahovnica_LBS
+{
+    std::vector<int> kraljice;
+    int hevristika;
+};
 
 int main()
 {
@@ -41,24 +48,40 @@ int main()
     
     rand_stanje(kraljice, velikost_matrike);
 
-    //izris_sahovnice(kraljice);
     switch (izbira)
     {
     case 1:
         std::cout << "HILL C \n";
         int st_interakcij;
-        //HillClimbing(kraljice, velikost_matrike, 100);
         std::cout << "Stevilo interakcij: ";
         std::cin >> st_interakcij;
         izris_sahovnice(kraljice);
+        std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         my_HillClimb(kraljice, velikost_matrike, st_interakcij);
         izris_sahovnice(kraljice);
+        std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         break;
     case 2:
-        std::cout << "Local beam \n";
+        int T; /// temperatura
+        std::cout << "simulated annealing\n";
+        std::cout << "Temperatura: ";
+        std::cin >> T;
+        izris_sahovnice(kraljice);
+        std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
+        my_Simulated_Annealing(kraljice, velikost_matrike, T);
+        izris_sahovnice(kraljice);
+        std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         break;
     case 3:
-        std::cout << "Sim a \n";
+        int k; 
+        std::cout << "local beam search \n";
+        std::cout << "K: ";
+        std::cin >> k;
+        izris_sahovnice(kraljice);
+        std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
+        my_Local_Beam_Search(kraljice, velikost_matrike, k);
+        izris_sahovnice(kraljice);
+        std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         break;
     case 4:
         std::cout << "Gene \n";
@@ -77,8 +100,8 @@ int izbira_algoritma() {
     {
     std::cout << "IZBERI KATERI ALGORITEM ZELIS UPORABITI: \n";
     std::cout << "1) Hill climbing \n";
-    std::cout << "2) Local beam search \n";
-    std::cout << "3) Simulated annealing \n";
+    std::cout << "2) Simulated annealing \n";
+    std::cout << "3) Local beam search \n";
     std::cout << "4) Genetic algorithm \n";
     std::cout << "\n";
     std::cout << "Izbira: ";
@@ -91,9 +114,8 @@ int izbira_algoritma() {
 void rand_stanje(std::vector<int>& kraljice, int velikost) {
     for (int i = 0; i < velikost; i++)
     {
-        //kraljice.push_back(rand() % velikost);
         kraljice[i] = rand() % velikost;
-        std::cout << "Koordinate: x: " << i << " y: " << kraljice[i] << "\n";
+        //std::cout << "Koordinate: x: " << i << " y: " << kraljice[i] << "\n";
     }
 }
 
@@ -144,9 +166,9 @@ int izracun_hevristike_HILLC(std::vector<int>k, int velikost) {
         }
     }
     //std::cout << "Hevristika po dia: " << hev_Dia << "\n";
-    if (hevristika + hev_Dia / 2 == 0) {
+    /*if (hevristika + hev_Dia / 2 == 0) {
         izris_sahovnice(k);
-    }
+    }*/
     return hevristika + hev_Dia / 2;
 
 }
@@ -201,6 +223,46 @@ void HillClimbing(std::vector<int>& kraljice, int velikost, int st_interakcij) {
 
 void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij) {
     // tota bi naj sla dokler se hevristika ne poveca al neke takega 
+    //int min_hev; /// min hevristika
+    int trenutna_h = izracun_hevristike_HILLC(kraljice, velikost);
+    //min_hev = trenutna_h; /// prva hev je tudi min
+    //std::cout << "Trenutna: " << trenutna_h << "\n";
+    std::vector<int> temp = kraljice;
+    //std::vector<int> top = kraljice;
+    int index;
+    int v = 0;
+    do
+    {
+        int hev_pred = izracun_hevristike_HILLC(kraljice, velikost);
+        for (int j = 0; j < st_interakcij; j++)
+        {
+            /// v tej izracunamo doloceno stevilo potez
+            index = rand() % velikost; // izbremo rand stolpec
+            v = rand() % velikost; // rand vrednost, ki jo nato nastavimo v stolpec
+            if (temp[index] != v) {temp[index] = v;} // si shranimo to vrednost
+            else if (temp[index] == v) { temp[index]++; } /// ce je ista vrednost pristejemo ena da jo spremenimo
+            if (temp[index] >= velikost) { temp[index] = 0; } /// ce gremo prenizko skocimo nazaj na vrh
+            trenutna_h = izracun_hevristike_HILLC(kraljice, velikost);
+            int nova_h = izracun_hevristike_HILLC(temp, velikost); /// izracunamo novo hevristiko
+            if (nova_h < trenutna_h) {
+                /// si shranimo prvega najboljsega
+                kraljice = temp; /// si shranimo najboljsega
+                std::cout << "Nova: " << nova_h << "\n";
+            }
+        }
+        if (izracun_hevristike_HILLC(kraljice, velikost) >= hev_pred) {
+            break;
+        }
+
+        //std::cout << "I: " << i << "\n";
+        std::cout << "Hevristika: " << trenutna_h << "\n";
+        //std::cout << "Nova sahovnica: \n";
+        //izris_sahovnice(kraljice);
+
+    } while (true);
+    
+    
+    /**
     int min_hev;
     int trenutna_h = izracun_hevristike_HILLC(kraljice, velikost);
     std::cout << "Trenutna: " << trenutna_h << "\n";
@@ -235,17 +297,18 @@ void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij) {
         //}
     } while (i<st_interakcij && trenutna_h != 0); // dokler hevristika ni 0 in nismo presegli stevilo interakcij
 
-    //std::cout << "I: " << i << "\n";
+    std::cout << "I: " << i << "\n";
     std::cout << "Hevristika: " << trenutna_h << "\n";
     //std::cout << "Nova sahovnica: \n";
     //izris_sahovnice(kraljice);
+    */
 }
 
 void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij) {
     /// dobimo sahovnico, ki ima neko hevristiko ki jo izracunam
-    int trenutna_h = izracun_hevristike_HILLC(kraljice, velikost);
-    // morem si dolocit neko temp in delta temp
-    int temperatura = 1000; /// temperatura
+    
+    std::vector<int> temp = kraljice;
+    int temperatura = st_interakcij; /// temperatura
     int delta_T = 1; /// sprememba temp
     // postopek ki se mi manka
     /***
@@ -254,15 +317,78 @@ void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_int
         PO TISTI ENACBI SPREMINJAM POLOZAJE
         POGLEJ V UCB
     */
+    int index;
+    int v;
+    int delta_h;
     do {
         // mislim da tu tudi izberes rand stolpec in isto kot pri hill climb
+        if (temperatura == 0) {
+            break;
+        }
+
+        index = rand() % velikost; // izbremo rand stolpec
+        v = rand() % velikost; // rand vrednost, ki jo nato nastavimo v stolpec
+        temp[index] += v; // pristejemo to vrednost k vrednosti, ki je ze v stolpcu (torej premaknemo kraljico dol)
+        if (temp[index] >= velikost) { temp[index] = 0; } /// ce gremo y sahovnice gremo nazaj na vrh
+        int trenutna_h = izracun_hevristike_HILLC(kraljice, velikost); /// hevristika
+        int nova_h = izracun_hevristike_HILLC(temp, velikost); /// izracunamo novo hevristiko
+
+        delta_h = nova_h - trenutna_h;
+
+        if (delta_h < 0) {
+            kraljice = temp;
+        }
+        else {
+            float r = (float)delta_h / (float)temperatura;
+            float nekaj = 1/exp(r);
+            std::cout << "Nekaj: " << nekaj << "\n";
+            if (nekaj < 1) {
+                /// tisti pogoj z vrjetnostjo zamenjave
+                kraljice = temp;
+            }
+        }
 
         temperatura = temperatura - delta_T;
-    } while (temperatura !=0);
+    } while (true);
+
+    izris_sahovnice(kraljice);
+    std::cout << "Hev: " << izracun_hevristike_HILLC(kraljice, velikost) << "\n";
 }
 
 
+void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k) {
+    /// mnozica k zakljucenih stanj
+    /*sahovnica_LBS sahovnica;
+    for (int i = 0; i < velikost; i++)
+    {
+        sahovnica.kraljice.push_back(rand() % velikost);
+        std::cout << sahovnica.kraljice[i] << " ";
+    }
+    std::cout << "\n";*/
 
+    std::vector<sahovnica_LBS> sahovnica;
+    for (int i = 0; i < k; i++)
+    {
+        /// si shranimo k stevilo zacetnega stanja
+        sahovnica_LBS temp;
+        temp.kraljice = kraljice;
+        temp.hevristika = izracun_hevristike_HILLC(kraljice, velikost);
+        sahovnica.push_back(temp);
+    }
+
+    for (int i = 0; i < k; i++)
+    {
+        for (int j = 0; j < velikost; j++)
+        {
+            std::cout << sahovnica[i].kraljice[j] << " ";
+        }
+        std::cout << " h: " << sahovnica[i].hevristika << "\n";
+        std::cout << "-----------------------------\n";
+    }
+
+    ///  sedaj imamo mnozico k zacetnih stanj
+
+}
 
 
 
