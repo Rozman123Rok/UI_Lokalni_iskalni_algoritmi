@@ -2,7 +2,7 @@
     TO DO:
         Sahovnica more bit velikosti med 4 in 12, toliko je tudi kraljic, vsaka v svojem stolpcu
         Ustvarit array ki bo imel koordinate kraljic (index je stolpec, vrednost vrstice)
-        hill climbing
+        hill climbing (nvm se kateri je pravi)
         local beam search
         simulated annealing
         genetic algorithm
@@ -20,6 +20,9 @@ void rand_stanje(std::vector<int>& kraljice, int velikost);
 void izris_sahovnice(std::vector<int> k);
 int izracun_hevristike_HILLC(std::vector<int>k, int velikost);
 void HillClimbing(std::vector<int>& kraljice, int velikost, int st_interakcij);
+void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij);
+void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij);
+
 
 int main()
 {
@@ -38,12 +41,17 @@ int main()
     
     rand_stanje(kraljice, velikost_matrike);
 
-    izris_sahovnice(kraljice);
+    //izris_sahovnice(kraljice);
     switch (izbira)
     {
     case 1:
         std::cout << "HILL C \n";
-        HillClimbing(kraljice, velikost_matrike, 100);
+        int st_interakcij;
+        //HillClimbing(kraljice, velikost_matrike, 100);
+        std::cout << "Stevilo interakcij: ";
+        std::cin >> st_interakcij;
+        izris_sahovnice(kraljice);
+        my_HillClimb(kraljice, velikost_matrike, st_interakcij);
         izris_sahovnice(kraljice);
         break;
     case 2:
@@ -59,8 +67,8 @@ int main()
         break;
     }
 
-    int h = izracun_hevristike_HILLC(kraljice, velikost_matrike);
-    std::cout << "Hevristika: " << h << "\n";
+    //int h = izracun_hevristike_HILLC(kraljice, velikost_matrike);
+    //std::cout << "Hevristika: " << h << "\n";
 }
 
 int izbira_algoritma() {
@@ -136,6 +144,9 @@ int izracun_hevristike_HILLC(std::vector<int>k, int velikost) {
         }
     }
     //std::cout << "Hevristika po dia: " << hev_Dia << "\n";
+    if (hevristika + hev_Dia / 2 == 0) {
+        izris_sahovnice(k);
+    }
     return hevristika + hev_Dia / 2;
 
 }
@@ -187,5 +198,73 @@ void HillClimbing(std::vector<int>& kraljice, int velikost, int st_interakcij) {
     //return trenutna_h == 0 ? kraljice : NULL; // return solution if solved
 
 }
+
+void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij) {
+    // tota bi naj sla dokler se hevristika ne poveca al neke takega 
+    int min_hev;
+    int trenutna_h = izracun_hevristike_HILLC(kraljice, velikost);
+    std::cout << "Trenutna: " << trenutna_h << "\n";
+    std::vector<int> temp = kraljice;
+    int i = 0;
+    int index;
+    int v = 0;
+    int stevec = 0;
+    do {
+        index = rand() % velikost; // izbremo rand stolpec
+        v = rand() % velikost; // rand vrednost, ki jo nato nastavimo v stolpec
+        temp[index]+=v; // pristejemo to vrednost k vrednosti, ki je ze v stolpcu (torej premaknemo kraljico dol)
+        if (temp[index] >= velikost) { temp[index] = 0; } /// ce gremo y sahovnice gremo nazaj na vrh
+        int nova_h = izracun_hevristike_HILLC(temp, velikost); /// izracunamo novo hevristiko
+        if (nova_h < trenutna_h || nova_h == 0) {
+            /// se mnda ni pravi pogoj
+            /// ce se izbolsa hev
+            kraljice = temp; // si shranimo polozaj kraljic
+            trenutna_h = nova_h; /// zamenjamo hev, ki jo moramo premagati
+            //stevec = 0; /// stevec damo na nic ker ni bila ista vrednost hev
+        }
+        //stevec++; // povecamo hev
+        //if (stevec > 15) {
+            // ce ze 15 ponovitev racunamo isto hevristiko
+          //  rand_stanje(temp, velikost); // dobimo novo rand stanje na sahovnici
+        //}
+        i++; /// povecamo stevilo ponovitev
+        //if (trenutna_h == 0) {
+            //std::cout << "HEVRISTIKA JE NIC! KRALJICE: \n";
+            //izris_sahovnice(kraljice);
+            //izris_sahovnice(temp);
+        //}
+    } while (i<st_interakcij && trenutna_h != 0); // dokler hevristika ni 0 in nismo presegli stevilo interakcij
+
+    //std::cout << "I: " << i << "\n";
+    std::cout << "Hevristika: " << trenutna_h << "\n";
+    //std::cout << "Nova sahovnica: \n";
+    //izris_sahovnice(kraljice);
+}
+
+void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij) {
+    /// dobimo sahovnico, ki ima neko hevristiko ki jo izracunam
+    int trenutna_h = izracun_hevristike_HILLC(kraljice, velikost);
+    // morem si dolocit neko temp in delta temp
+    int temperatura = 1000; /// temperatura
+    int delta_T = 1; /// sprememba temp
+    // postopek ki se mi manka
+    /***
+        RABIM ONO ENACBO 
+        VSAKIC KO GREM SKOZI LOOP ZMANSAM T-delta_T
+        PO TISTI ENACBI SPREMINJAM POLOZAJE
+        POGLEJ V UCB
+    */
+    do {
+        // mislim da tu tudi izberes rand stolpec in isto kot pri hill climb
+
+        temperatura = temperatura - delta_T;
+    } while (temperatura !=0);
+}
+
+
+
+
+
+
 
 
