@@ -1,4 +1,4 @@
 ﻿  UI_Vaja1.cpp
-C:\Users\Rok-Home\Desktop\UI\UI_Lokalni_iskalni_algoritmi\UI_Vaja1\UI_Vaja1\UI_Vaja1.cpp(36,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Rok-Home\Desktop\UI\UI_Lokalni_iskalni_algoritmi\UI_Vaja1\UI_Vaja1\UI_Vaja1.cpp(123,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Rok-Home\Desktop\UI\UI_Lokalni_iskalni_algoritmi\UI_Vaja1\UI_Vaja1\UI_Vaja1.cpp(37,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Rok-Home\Desktop\UI\UI_Lokalni_iskalni_algoritmi\UI_Vaja1\UI_Vaja1\UI_Vaja1.cpp(124,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   UI_Vaja1.vcxproj -> C:\Users\Rok-Home\Desktop\UI\UI_Lokalni_iskalni_algoritmi\UI_Vaja1\x64\Debug\UI_Vaja1.exe

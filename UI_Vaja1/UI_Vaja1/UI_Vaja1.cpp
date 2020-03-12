@@ -23,7 +23,8 @@ int izracun_hevristike_HILLC(std::vector<int>k, int velikost);
 void HillClimbing(std::vector<int>& kraljice, int velikost, int st_interakcij);
 void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij);
 void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij);
-void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k);
+void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int st_interakcij);
+//void rand_stanje_LBS(std::vector<int>& kraljice, int velikost);
 
 struct sahovnica_LBS
 {
@@ -79,7 +80,7 @@ int main()
         std::cin >> k;
         izris_sahovnice(kraljice);
         std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
-        my_Local_Beam_Search(kraljice, velikost_matrike, k);
+        my_Local_Beam_Search(kraljice, velikost_matrike, k, 10);
         izris_sahovnice(kraljice);
         std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         break;
@@ -213,7 +214,7 @@ void HillClimbing(std::vector<int>& kraljice, int velikost, int st_interakcij) {
             //r = SolverUtils.generateRandomState(n);
 
     }
-    std::cout << "TEMP   \n"<<min_hev<<"\n";
+    //std::cout << "TEMP   \n"<<min_hev<<"\n";
     izris_sahovnice(temp);
     kraljice = temp;
     //kraljice = rc
@@ -328,8 +329,11 @@ void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_int
 
         index = rand() % velikost; // izbremo rand stolpec
         v = rand() % velikost; // rand vrednost, ki jo nato nastavimo v stolpec
-        temp[index] += v; // pristejemo to vrednost k vrednosti, ki je ze v stolpcu (torej premaknemo kraljico dol)
-        if (temp[index] >= velikost) { temp[index] = 0; } /// ce gremo y sahovnice gremo nazaj na vrh
+        //temp[index] += v; // pristejemo to vrednost k vrednosti, ki je ze v stolpcu (torej premaknemo kraljico dol)
+        //if (temp[index] >= velikost) { temp[index] = 0; } /// ce gremo y sahovnice gremo nazaj na vrh
+        if (temp[index] != v) { temp[index] = v; } // si shranimo to vrednost
+        else if (temp[index] == v) { temp[index]++; } /// ce je ista vrednost pristejemo ena da jo spremenimo
+        if (temp[index] >= velikost) { temp[index] = 0; } /// ce gremo prenizko skocimo nazaj na vrh
         int trenutna_h = izracun_hevristike_HILLC(kraljice, velikost); /// hevristika
         int nova_h = izracun_hevristike_HILLC(temp, velikost); /// izracunamo novo hevristiko
 
@@ -356,8 +360,65 @@ void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_int
 }
 
 
-void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k) {
+void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int st_interakcij) {
     /// mnozica k zakljucenih stanj
+    std::vector<sahovnica_LBS> prve_k; /// shranjenih prvih k sahovnic
+    std::vector<sahovnica_LBS> sahovnica; /// tu bojo shranjene vse sahovnice (k*k)
+    /// rabim rand k sahovnic
+    for (int i = 0; i < k; i++) {
+        sahovnica_LBS temp; /// temp struktura da jo push v vektor
+        rand_stanje(kraljice, velikost); /// izracunamo rand postavitev sahovnice
+        temp.kraljice = kraljice; /// si shranimo v temp
+        temp.hevristika = izracun_hevristike_HILLC(kraljice, velikost);
+        sahovnica.push_back(temp); /// push temp v vektor
+    }
+    
+    /// izpis
+    for (int i = 0; i < k; i++)
+    {
+        for (int j = 0; j < velikost; j++)
+        {
+            std::cout << sahovnica[i].kraljice[j] << " ";
+        }
+        std::cout << " h: " << sahovnica[i].hevristika << "\n";
+        std::cout << "-----------------------------\n";
+    }
+    
+    prve_k = sahovnica;
+
+    int index; /// keri stolpec
+    int v; /// vrednost
+
+    for (int i = 0; i < k; i++) {
+        /// da grem cez vseh k v vektorju
+        for (int j = 0; j < k; j++) {
+            /// da za vsakega iz vektorja razvijem k novih stanj
+            index = rand() % velikost; // izbremo rand stolpec
+            v = rand() % velikost; // rand vrednost, ki jo nato nastavimo v stolpec
+            sahovnica_LBS temp;
+            temp = sahovnica[i];
+            if (sahovnica[i].kraljice[index] != v) { temp.kraljice[index] = v; } // si shranimo to vrednost
+            else if (sahovnica[i].kraljice[index] == v) { temp.kraljice[index]++; } /// ce je ista vrednost pristejemo ena da jo spremenimo
+            if (sahovnica[i].kraljice[index] >= velikost) { temp.kraljice[index] = 0; } /// ce gremo prenizko skocimo nazaj na vrh
+            temp.hevristika = izracun_hevristike_HILLC(temp.kraljice, velikost);
+            sahovnica.push_back(temp);
+        }
+    }
+
+    std::cout << "------PONOVEN IZPIS----------\n";
+    /// ponovno izris sahovnice
+    for (int i = 0; i < sahovnica.size(); i++) {
+        for (int j = 0; j < velikost; j++) {
+            std::cout << sahovnica[i].kraljice[j] << " ";
+        }
+        std::cout << " h: " << sahovnica[i].hevristika << "\n";
+        std::cout << "-----------------------------\n";
+    }
+
+    /// jih zgeneriramo dovolj
+    /// zaj jih moremo razvrstit
+
+
     /*sahovnica_LBS sahovnica;
     for (int i = 0; i < velikost; i++)
     {
@@ -365,8 +426,20 @@ void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k) {
         std::cout << sahovnica.kraljice[i] << " ";
     }
     std::cout << "\n";*/
-
+    /**
     std::vector<sahovnica_LBS> sahovnica;
+    for (int i = 0; i < k; i++)
+    {
+        /// si shranimo k stevilo zacetnega stanja
+        sahovnica_LBS temp;
+        temp.kraljice = kraljice;
+        temp.hevristika = izracun_hevristike_HILLC(kraljice, velikost);
+        sahovnica.push_back(temp);
+    }
+    */
+    /**
+    std::vector<sahovnica_LBS> sahovnica;
+    std::vector<sahovnica_LBS> dodatna;
     for (int i = 0; i < k; i++)
     {
         /// si shranimo k stevilo zacetnega stanja
@@ -387,6 +460,42 @@ void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k) {
     }
 
     ///  sedaj imamo mnozico k zacetnih stanj
+    /// spreminjamo vsako stanje posebaj
+    /// ko jih uredimo mamo neki sahovnica_lBS temp ... lahko kr bubble sort ... lahko kr sproti
+    /// pogledam ce je hev =0 .... sem konec
+    /// q najboljsih si direkt dam v novo mnozico
+
+    /// gremo skozi vsako stanje st_interakcij krat
+
+    dodatna = sahovnica;
+
+    int index;
+    int v;
+
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < st_interakcij; j++) {
+            index = rand() % velikost; // izbremo rand stolpec
+            v = rand() % velikost; // rand vrednost, ki jo nato nastavimo v stolpec
+            if (dodatna[i].kraljice[index] != v) { dodatna[i].kraljice[index] = v; } // si shranimo to vrednost
+            else if (dodatna[i].kraljice[index] == v) { dodatna[i].kraljice[index]++; } /// ce je ista vrednost pristejemo ena da jo spremenimo
+            if (dodatna[i].kraljice[index] >= velikost) { dodatna[i].kraljice[index] = 0; } /// ce gremo prenizko skocimo nazaj na vrh
+            dodatna[i].hevristika = izracun_hevristike_HILLC(dodatna[i].kraljice, velikost);
+            //temp[index] += v; // pristejemo to vrednost k vrednosti, ki je ze v stolpcu (torej premaknemo kraljico dol)
+            ///if (temp[index] >= velikost) { temp[index] = 0; } /// ce gremo y sahovnice gremo nazaj na vrh
+        }
+    }
+
+
+    for (int i = 0; i < k; i++)
+    {
+        for (int j = 0; j < velikost; j++)
+        {
+            std::cout << dodatna[i].kraljice[j] << " ";
+        }
+        std::cout << " h: " << dodatna[i].hevristika << "\n";
+        std::cout << "-----------------------------\n";
+    }
+    */
 
 }
 
