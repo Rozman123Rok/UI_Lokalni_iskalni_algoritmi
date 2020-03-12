@@ -366,7 +366,7 @@ void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_int
 
 void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int st_interakcij) {
     /// mnozica k zakljucenih stanj
-    std::vector<sahovnica_LBS> prve_k; /// shranjenih prvih k sahovnic
+    std::vector<sahovnica_LBS> najboljsih_k; /// shranjenih k sahovnic
     std::vector<sahovnica_LBS> sahovnica; /// tu bojo shranjene vse sahovnice (k*k)
     /// rabim rand k sahovnic
     for (int i = 0; i < k; i++) {
@@ -388,10 +388,17 @@ void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int s
         std::cout << "-----------------------------\n";
     }
     
-    prve_k = sahovnica;
+    //prve_k = sahovnica;
 
     int index; /// keri stolpec
     int v; /// vrednost
+    bool flag = false;
+    int index_hev_nic;
+    do
+    {
+
+    
+
 
     for (int i = 0; i < k; i++) {
         /// da grem cez vseh k v vektorju
@@ -436,6 +443,50 @@ void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int s
         std::cout << " h: " << sahovnica[i].hevristika << "\n";
         std::cout << "-----------------------------\n";
     }
+
+    /// Zaj pa pogledamo ce je keri hev = 0
+    if (najboljsih_k.size() > 0) {
+        najboljsih_k.clear(); /// jih spraznemo
+    }
+    for (int i = 0; i < sahovnica.size(); i++)
+    {
+        if (sahovnica[i].hevristika == 0) { 
+            flag = true; 
+            index_hev_nic = i; 
+            break; 
+        }
+
+        if (i < k) {
+            //// si shranimo k najboljsih
+            sahovnica_LBS temp;
+            temp.kraljice = sahovnica[i].kraljice;
+            temp.hevristika = sahovnica[i].hevristika;
+            najboljsih_k.push_back(temp);
+        }
+    }
+    /// si spraznemo se sahovnico polje
+    if (flag) {
+        kraljice = sahovnica[index_hev_nic].kraljice;
+        break; }
+    sahovnica.clear();
+
+    std::cout << "------IZPIS TOP K----------\n";
+    /// ponovno izris sahovnice
+    for (int i = 0; i < najboljsih_k.size(); i++) {
+        for (int j = 0; j < velikost; j++) {
+            std::cout << najboljsih_k[i].kraljice[j] << " ";
+        }
+        std::cout << " h: " << najboljsih_k[i].hevristika << "\n";
+        std::cout << "-----------------------------\n";
+    }
+
+    std::cout << "Velikost sahovnica: " << sahovnica.size() << " velikost topk: " << najboljsih_k.size() << "\n";
+
+    /// si  damo nazaj v sahovnico top k
+    sahovnica = najboljsih_k;
+
+    } while (true);
+
     /*sahovnica_LBS sahovnica;
     for (int i = 0; i < velikost; i++)
     {
