@@ -15,6 +15,13 @@
 #include <vector>
 #include <time.h>
 #include <math.h>
+#include <algorithm> 
+
+struct sahovnica_LBS
+{
+    std::vector<int> kraljice;
+    int hevristika;
+};
 
 int izbira_algoritma();
 void rand_stanje(std::vector<int>& kraljice, int velikost);
@@ -25,12 +32,9 @@ void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij);
 void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij);
 void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int st_interakcij);
 //void rand_stanje_LBS(std::vector<int>& kraljice, int velikost);
+bool za_sort(sahovnica_LBS i, sahovnica_LBS j);
 
-struct sahovnica_LBS
-{
-    std::vector<int> kraljice;
-    int hevristika;
-};
+
 
 int main()
 {
@@ -415,10 +419,23 @@ void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int s
         std::cout << "-----------------------------\n";
     }
 
+
+
     /// jih zgeneriramo dovolj
     /// zaj jih moremo razvrstit
+    //// sortiramo
+    std::sort(sahovnica.begin(), sahovnica.end(), za_sort);
 
 
+    std::cout << "------PONOVEN IZPIS PO SORT----------\n";
+    /// ponovno izris sahovnice
+    for (int i = 0; i < sahovnica.size(); i++) {
+        for (int j = 0; j < velikost; j++) {
+            std::cout << sahovnica[i].kraljice[j] << " ";
+        }
+        std::cout << " h: " << sahovnica[i].hevristika << "\n";
+        std::cout << "-----------------------------\n";
+    }
     /*sahovnica_LBS sahovnica;
     for (int i = 0; i < velikost; i++)
     {
@@ -500,6 +517,6 @@ void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int s
 }
 
 
-
+bool za_sort(sahovnica_LBS i, sahovnica_LBS j) { return (i.hevristika < j.hevristika); }
 
 
