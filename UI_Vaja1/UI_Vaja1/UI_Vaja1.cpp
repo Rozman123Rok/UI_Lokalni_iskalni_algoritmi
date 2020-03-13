@@ -1,16 +1,3 @@
-/**
-    TO DO:
-        Sahovnica more bit velikosti med 4 in 12, toliko je tudi kraljic, vsaka v svojem stolpcu
-        Ustvarit array ki bo imel koordinate kraljic (index je stolpec, vrednost vrstice)
-        hill climbing (nvm se kateri je pravi)
-        local beam search
-        simulated annealing
-        genetic algorithm
-        
-        POGLEJ DODATNE PARAMETRE!
-        ! NE POZABI ZBRISAT HILL CLIMB !
-*/
-
 #include <iostream>
 #include <vector>
 #include <time.h>
@@ -37,23 +24,18 @@ int main()
 {
     srand(time(0));
     int izbira;
-    ///Lahko bi se dodal da je 0
-    //do
-    //{
     izbira = izbira_algoritma();
-    //std::cout << "Izbira algoritma: " << izbira << "\n";
     int velikost_matrike;
     std::vector<int> kraljice;
     std::cout << "Vpisi velikost matrike: ";
     std::cin >> velikost_matrike;
-    //std::cout << "Velikost matrike: " << velikost_matrike << "\n";
-    
+
     for (int i = 0; i < velikost_matrike; i++)
     {
         kraljice.push_back(0); /// nastavimo vse kraljice na 0
     }
     
-    rand_stanje(kraljice, velikost_matrike);
+    rand_stanje(kraljice, velikost_matrike); /// dobimo rand stanje kraljic
 
     switch (izbira)
     {
@@ -108,9 +90,7 @@ int main()
         break;
     }
 
-    //} while (izbira!=0);
-    //int h = izracun_hevristike_HILLC(kraljice, velikost_matrike);
-    //std::cout << "Hevristika: " << h << "\n";
+    return 0;
 }
 
 int izbira_algoritma() {
@@ -122,7 +102,6 @@ int izbira_algoritma() {
     std::cout << "2) Simulated annealing \n";
     std::cout << "3) Local beam search \n";
     std::cout << "4) Genetic algorithm \n";
-    //std::cout << "0) Koncaj \n";
     std::cout << "\n";
     std::cout << "Izbira: ";
     std::cin >> izbira;
@@ -168,12 +147,11 @@ int izracun_hevristike_HILLC(std::vector<int>k, int velikost) {
     {
         for (int j = i + 1; j < velikost; j++) {
             if (k[i] == k[j]) {
-                hevristika++;
+                hevristika++; /// ce je v isti vrstici
             }
         }
 
     }
-    //std::cout << "Hevristika po vrsticah: " << hevristika << "\n";
     
     // po diagonali
     for (int i = 0; i < velikost; i++)
@@ -186,10 +164,7 @@ int izracun_hevristike_HILLC(std::vector<int>k, int velikost) {
             }
         }
     }
-    //std::cout << "Hevristika po dia: " << hev_Dia << "\n";
-    /*if (hevristika + hev_Dia / 2 == 0) {
-        izris_sahovnice(k);
-    }*/
+
     return hevristika + hev_Dia / 2;
 
 }
@@ -639,9 +614,9 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
                 //int rand_vrstica = rand() % velikost; ///izbiramo 
                 
                 // izbrali bomo rand stolpca v obeh starsih in jima dodali novo vrednost
-                std::cout << stars1 << " " << stars2 << "\n";
-                std::cout << "Sah star1: " << starsi[stars1].kraljice[rand_stolpec] << " " << starsi[stars2].kraljice[rand_stolpec] << "\n";
-                std::cout << "sah size: " << sahovnica.size() << " " << starsi.size() << "\n";
+                //std::cout << stars1 << " " << stars2 << "\n";
+                //std::cout << "Sah star1: " << starsi[stars1].kraljice[rand_stolpec] << " " << starsi[stars2].kraljice[rand_stolpec] << "\n";
+                //std::cout << "sah size: " << sahovnica.size() << " " << starsi.size() << "\n";
                 //sahovnica[stars1].kraljice[rand_stolpec] = rand() % velikost; /// spremenim vrednost kraljice na dolocenem stolpcu
                 //sahovnica[stars2].kraljice[rand_stolpec] = rand() % velikost; /// spremenim vrednost kraljice na dolocenem stolpcu
                 starsi[stars1].kraljice[rand_stolpec] = rand() % velikost; /// spremenim vrednost kraljice na dolocenem stolpcu
@@ -674,7 +649,7 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
             */
         }
 
-        std::cout << "Pred elito: " << sahovnica[0].hevristika << "\n";
+        //std::cout << "Pred elito: " << sahovnica[0].hevristika << "\n";
         
         for (int i = 0; i < s_elit; i++)
         {
@@ -683,18 +658,18 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
 
         std::sort(sahovnica.begin(), sahovnica.end(), za_sort); /// sort s svojo funkcijo
         
-        std::cout << "Po elito: " << sahovnica[0].hevristika << "\n";
+        //std::cout << "Po elito: " << sahovnica[0].hevristika << "\n";
 
         int polozaj_nic; /// kjer je hev 0
         //std::cout << "Ponoven izpis sahovnice zadnja v loop!\n";
         for (int i = 0; i < sahovnica.size(); i++)
         {
-            /**/
+            /**
             for (int j = 0; j < velikost; j++) {
                 std::cout << sahovnica[i].kraljice[j] << " ";
             }
-            /**/
-            std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
+            **/
+            //std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
             if (sahovnica[i].hevristika == 0) {
                 /// testiramo ce je hev 0 da smo koncali
                 polozaj_nic = i;
@@ -702,7 +677,7 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
             }
         }
 
-        std::cout << "###############################################\n###############################################\n";
+        //std::cout << "###############################################\n###############################################\n";
 
         stevec_generacij++; /// povecamo stevilo gen
         if (hev_nic)
