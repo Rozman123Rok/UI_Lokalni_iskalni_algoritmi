@@ -15,10 +15,10 @@ void rand_stanje(std::vector<int>& kraljice, int velikost);
 void izris_sahovnice(std::vector<int> k);
 int izracun_hevristike_HILLC(std::vector<int>k, int velikost);
 void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij);
-void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij);
+void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij, int dT);
 void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int st_interakcij);
 bool za_sort(sahovnica_LBS i, sahovnica_LBS j);
-void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int st_generacij);
+void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int st_generacij, int e, int m, int krizanje);
 
 int main()
 {
@@ -52,12 +52,15 @@ int main()
         break;
     case 2:
         int T; /// temperatura
+        int delta_T; /// temperatura
         std::cout << "Simulated Annealing\n";
         std::cout << "Temperatura: ";
         std::cin >> T;
+        std::cout << "Delta T: ";
+        std::cin >> delta_T;
         izris_sahovnice(kraljice);
         std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
-        my_Simulated_Annealing(kraljice, velikost_matrike, T);
+        my_Simulated_Annealing(kraljice, velikost_matrike, T, delta_T);
         izris_sahovnice(kraljice);
         std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         break;
@@ -73,16 +76,23 @@ int main()
         std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         break;
     case 4:
-        int k_g, st_gen;
+        /// odstotek elitizma, verjetnost križanja, verjetnost mutacije
+        int k_g, st_gen, mutacija, krizanje, elitizem;
         std::cout << "Genetic Algorithm \n";
         std::cout << "Stevilo generacij: ";
         std::cin >> st_gen;
         std::cout << "Stevilo k v vsaki generaciji: ";
         std::cin >> k_g;
         if (k_g < 5) { k_g = 5; } /// nemore bit manj kot 5
+        std::cout << "Elitizem: ";
+        std::cin >> elitizem;
+        std::cout << "Mutacije: ";
+        std::cin >> mutacija;
+        std::cout << "Krizanje: ";
+        std::cin >> krizanje;
         izris_sahovnice(kraljice);
         std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
-        my_Genetic_Algorithm(kraljice,velikost_matrike,k_g,st_gen);
+        my_Genetic_Algorithm(kraljice,velikost_matrike,k_g,st_gen, elitizem, mutacija, krizanje);
         izris_sahovnice(kraljice);
         std::cout << "Hevristika: " << izracun_hevristike_HILLC(kraljice, velikost_matrike) << "\n";
         break;
@@ -209,12 +219,12 @@ void my_HillClimb(std::vector<int>& kraljice, int velikost, int st_interakcij) {
     
 }
 
-void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij) {
+void my_Simulated_Annealing(std::vector<int>& kraljice, int velikost, int st_interakcij, int dT) {
     /// dobimo sahovnico, ki ima neko hevristiko ki jo izracunam
     
     std::vector<int> temp = kraljice;
     int temperatura = st_interakcij; /// temperatura
-    int delta_T = 1; /// sprememba temp
+    int delta_T = dT; /// sprememba temp
 
     int index;
     int v;
@@ -393,7 +403,7 @@ void my_Local_Beam_Search(std::vector<int>& kraljice, int velikost, int k, int s
 
 bool za_sort(sahovnica_LBS i, sahovnica_LBS j) { return (i.hevristika < j.hevristika); }
 
-void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int st_generacij) {
+void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int st_generacij, int e, int m, int krizanje) {
     /// funkcija za genetski algoritem
     /// krizanje zamenjamo stolpca
     /// mutacija zamenjamo dve celici
@@ -404,8 +414,8 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
     std::vector<sahovnica_LBS> starsi; /// starsi katere krizamo, elita se ne kriza
     std::vector<sahovnica_LBS> sahovnica; /// tu bojo shranjene vse sahovnice (k*k)
     
-    const int krizanje_vr = 35;
-    const int mutacija_vr = 5;
+    int krizanje_vr = krizanje;
+    int mutacija_vr = m;
 
     for (int i = 0; i < k; i++) {
         sahovnica_LBS temp; /// temp struktura da jo push v vektor
@@ -444,7 +454,8 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
         }
         */
         
-        int s_elit = k * 0.2; /// vzamemo 20% k elementov
+        //int s_elit = k * 0.2; /// vzamemo 20% k elementov
+        int s_elit = (k * e) / 100;
         int preostali_delez = k - s_elit; /// ostali elementi ki niso v eliti
 
         //std::cout << "Elit ele: " << s_elit << "\n";
