@@ -516,11 +516,12 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
         }
 
         //std::cout << "Velikost sahovnica (more bit 0): " << sahovnica.size() << "\n";
-
+        /**
         for (int i = 0; i < s_elit; i++)
         {
             sahovnica.push_back(elita[i]); /// si shranimo elito za naslednjo generacijo
         }
+        */
 
         /**
         std::cout << "--------- IZPIS ELITE/ NOVA GEN -------\n";
@@ -635,43 +636,16 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
             if (mutacija <= mutacija_vr) {
                 ///delamo mutacijo
                 int rand_stolpec = rand() % velikost; /// mamo matriko velikost x velikost
-                int rand_vrstica = rand() % velikost; ///izbiramo 
+                //int rand_vrstica = rand() % velikost; ///izbiramo 
                 
-                //std::cout << "Rand stolpec: " << rand_stolpec << " rand_vrstica: " << rand_vrstica << "\n";
-                
-                if (!(sahovnica[stars1].kraljice[rand_vrstica] == rand_stolpec && sahovnica[stars2].kraljice[rand_vrstica] == rand_stolpec ||
-                    sahovnica[stars1].kraljice[rand_vrstica] != rand_stolpec && sahovnica[stars2].kraljice[rand_vrstica] != rand_stolpec))
-                {
-                    /// prvi pogoj: imata obe kraljico na tem mestu ne rabimo spreminjat
-                    /// drugi pogoj: ali pa je doben nima in prav tako ne rabimo spreminjati 
-                    /// ampak smo negirali tako da morem spremenit
-                    /**
-                    std::cout << "Izpis sahovnice mutacijo!\n";
-                    for (int i = 0; i < sahovnica.size(); i++)
-                    {
-                        for (int j = 0; j < velikost; j++) {
-                            std::cout << sahovnica[i].kraljice[j] << " ";
-                        }
-                        std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
-                    }
-                    */
-                    int temp = sahovnica[stars1].kraljice[rand_vrstica]; /// si shranimo vrednost
-                    sahovnica[stars1].kraljice[rand_vrstica] = sahovnica[stars2].kraljice[rand_vrstica]; /// prekopiramo
-                    sahovnica[stars2].kraljice[rand_vrstica] = temp; /// prekopiramo
-
-                    /**
-                    std::cout << "Ponoven izpis sahovnice po mutaciji!\n";
-                    for (int i = 0; i < sahovnica.size(); i++)
-                    {
-                        for (int j = 0; j < velikost; j++) {
-                            std::cout << sahovnica[i].kraljice[j] << " ";
-                        }
-                        std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
-                    }
-                    */
-                }
-                ///
-                
+                // izbrali bomo rand stolpca v obeh starsih in jima dodali novo vrednost
+                std::cout << stars1 << " " << stars2 << "\n";
+                std::cout << "Sah star1: " << starsi[stars1].kraljice[rand_stolpec] << " " << starsi[stars2].kraljice[rand_stolpec] << "\n";
+                std::cout << "sah size: " << sahovnica.size() << " " << starsi.size() << "\n";
+                //sahovnica[stars1].kraljice[rand_stolpec] = rand() % velikost; /// spremenim vrednost kraljice na dolocenem stolpcu
+                //sahovnica[stars2].kraljice[rand_stolpec] = rand() % velikost; /// spremenim vrednost kraljice na dolocenem stolpcu
+                starsi[stars1].kraljice[rand_stolpec] = rand() % velikost; /// spremenim vrednost kraljice na dolocenem stolpcu
+                starsi[stars2].kraljice[rand_stolpec] = rand() % velikost; /// spremenim vrednost kraljice na dolocenem stolpcu
             }
             if (!samo_en) {
                 sahovnica.push_back(starsi[stars1]); /// si shranimo za naslednjo generacijo
@@ -700,20 +674,27 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
             */
         }
 
+        std::cout << "Pred elito: " << sahovnica[0].hevristika << "\n";
+        
+        for (int i = 0; i < s_elit; i++)
+        {
+            sahovnica.push_back(elita[i]); /// si shranimo elito za naslednjo generacijo
+        }
 
         std::sort(sahovnica.begin(), sahovnica.end(), za_sort); /// sort s svojo funkcijo
         
-        
+        std::cout << "Po elito: " << sahovnica[0].hevristika << "\n";
+
         int polozaj_nic; /// kjer je hev 0
         //std::cout << "Ponoven izpis sahovnice zadnja v loop!\n";
         for (int i = 0; i < sahovnica.size(); i++)
         {
-            /**
+            /**/
             for (int j = 0; j < velikost; j++) {
                 std::cout << sahovnica[i].kraljice[j] << " ";
             }
-            */
-            //std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
+            /**/
+            std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
             if (sahovnica[i].hevristika == 0) {
                 /// testiramo ce je hev 0 da smo koncali
                 polozaj_nic = i;
@@ -721,7 +702,7 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
             }
         }
 
-        //std::cout << "###############################################\n###############################################\n";
+        std::cout << "###############################################\n###############################################\n";
 
         stevec_generacij++; /// povecamo stevilo gen
         if (hev_nic)
