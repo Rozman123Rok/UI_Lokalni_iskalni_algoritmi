@@ -424,6 +424,7 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
     /// mutacija zamenjamo dve celici
     /// st_generacij 1000
     /// krizanje 35%, mutacija 5%, elitizem 20% (20% top avtomatsko v novo generacijo)
+
     std::vector<sahovnica_LBS> elita; /// shranjena elita
     std::vector<sahovnica_LBS> starsi; /// starsi katere krizamo, elita se ne kriza
     std::vector<sahovnica_LBS> sahovnica; /// tu bojo shranjene vse sahovnice (k*k)
@@ -435,15 +436,15 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
         sahovnica_LBS temp; /// temp struktura da jo push v vektor
         rand_stanje(kraljice, velikost); /// izracunamo rand postavitev sahovnice
         temp.kraljice = kraljice; /// si shranimo v temp
-        temp.hevristika = izracun_hevristike_HILLC(kraljice, velikost);
+        temp.hevristika = izracun_hevristike_HILLC(kraljice, velikost); /// izracunamo hevristiko
         sahovnica.push_back(temp); /// push temp v vektor
     }
 
     //std::cout << "SAHOVNICA SIZE " << sahovnica.size() << "\n";
 
-    int stevec_generacij = 0;
-    bool hev_nic = false;
-    int poz_hev_nic;
+    int stevec_generacij = 0; /// koliko generacij smo naredili
+    bool hev_nic = false; /// ce je hev enaka 0
+    int poz_hev_nic; /// si shranimo polozaj ki je hev 0
     do
     {
         for (int i = 0; i < k; i++)
@@ -453,7 +454,10 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
 
         std::sort(sahovnica.begin(), sahovnica.end(), za_sort); /// sort s svojo funkcijo
         //std::cout << "SAHOVNICA SIZE " << sahovnica.size() << "\n";
-            /// izpis
+        
+        /// izpis
+        /*
+        std::cout << "Prva v loop: \n";
         for (int i = 0; i < k; i++)
         {
             for (int j = 0; j < velikost; j++)
@@ -463,21 +467,31 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
             std::cout << " h: " << sahovnica[i].hevristika << "\n";
             std::cout << "-----------------------------\n";
         }
-
+        */
+        
         int s_elit = k * 0.2; /// vzamemo 20% k elementov
-        int preostali_delez = k - s_elit;
-        std::cout << "Elit ele: " << s_elit << "\n";
+        int preostali_delez = k - s_elit; /// ostali elementi ki niso v eliti
+
+        //std::cout << "Elit ele: " << s_elit << "\n";
         //std::cout << "SAHOVNICA SIZE " << sahovnica.size() << "\n";
+        
         for (int i = 0; i < s_elit; i++)
         {
-            elita.push_back(sahovnica[i]);
+            elita.push_back(sahovnica[i]); /// si shranimo element sahovnice v elito
             sahovnica.erase(sahovnica.begin()); /// ga odstranimo ko smo ga uporabli
             if (elita[i].hevristika == 0)
             {
-                poz_hev_nic = i;
-                hev_nic = true;
+                poz_hev_nic = i; /// si shranimo polozaj elite kjer je hev 0
+                hev_nic = true; /// si oznacimo flag
             }
         }
+
+        if (hev_nic)
+        {
+            kraljice = elita[poz_hev_nic].kraljice; /// si shranimo elito in koncamo
+            break; /// smo koncali
+        }
+        
         /**
         // izpis
         for (int i = 0; i < elita.size(); i++)
@@ -490,18 +504,18 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
         }
         */
 
-        /// se rabim 80% elite, to je preostali_delez
+
         //std::cout << "SAHOVNICA SIZE " << sahovnica.size() << "\n";
         for (int i = 0; i < preostali_delez; i++)
         {
-            int index = rand() % sahovnica.size();
+            int index = rand() % sahovnica.size(); /// izberemo rand el ki ga damo v starse
             //std::cout << "Index: " << index << " s_elit: " << s_elit << "\n";
             //elita.push_back(sahovnica[i]);
             starsi.push_back(sahovnica[index]); /// te bomo krizali
             sahovnica.erase(sahovnica.begin() + index); /// ga odstranimo ko smo ga uporabli
         }
 
-        std::cout << "Velikost sahovnica (more bit 0): " << sahovnica.size() << "\n";
+        //std::cout << "Velikost sahovnica (more bit 0): " << sahovnica.size() << "\n";
 
         for (int i = 0; i < s_elit; i++)
         {
@@ -520,105 +534,203 @@ void my_Genetic_Algorithm(std::vector<int>& kraljice, int velikost, int k, int s
         }
         */
 
+        bool samo_en = false;
         for (int i = 0; i < preostali_delez; i+=2)
         {
+
+            int stars1, stars2; /// dva stars ki jih bomo izbrali
             if (starsi.size() == 1) {
                 /// ce nam ostane se samo en element
-                std::cout << "Se samo en element\n";
+                //std::cout << "Se samo en element\n";
+                sahovnica.push_back(starsi[0]); /// imamo samo en element in gre direkt v novo generacijo
+                samo_en = true;
             }
-
-            /// izberemo rand starsa za zamenjavo
-            int stars1 = rand() % starsi.size(); 
-            for (int i = 0; i < velikost; i++)
-            {
-                std::cout << starsi[stars1].kraljice[i] << " ";
-            }
-            std::cout << "Stars1: " << starsi[stars1].hevristika << "\n";
-            //starsi.erase(starsi.begin() + stars1); /// ga odstranimo ko smo ga uporabli
-            int stars2 = rand() % starsi.size();
-            for (int i = 0; i < velikost; i++)
-            {
-                std::cout << starsi[stars2].kraljice[i] << " ";
-            }
-            std::cout << "Stars2: " << starsi[stars2].hevristika << "\n";
-            //starsi.erase(starsi.begin() + stars2);
-
-            int lala = rand() % 100;
-
-            if (lala <= krizanje_vr) {
-                /// naredimo krizanje
-                int stolpec = rand() % velikost; /// si izberemo stolpec ki ga bomo zamenjali
-                int temp_v = starsi[stars1].kraljice[stolpec];
-                starsi[stars1].kraljice[stolpec] = starsi[stars2].kraljice[stolpec];
-                starsi[stars2].kraljice[stolpec] = temp_v;
-
-                std::cout << "Izpis po krizanju!\n";
+            else {
+                /// izberemo rand starsa za zamenjavo
+                stars1 = rand() % starsi.size(); /// rand starsa 1 izberemo
+                
+                /*
                 for (int i = 0; i < velikost; i++)
                 {
                     std::cout << starsi[stars1].kraljice[i] << " ";
-                    
                 }
-                
-                std::cout << "Stars1 nova h: " << izracun_hevristike_HILLC(starsi[stars1].kraljice,velikost)<< "\n";
-                starsi[stars1].hevristika = izracun_hevristike_HILLC(starsi[stars1].kraljice, velikost); /// izracunamo novo hevristiko
-                sahovnica.push_back(starsi[stars1]); /// si shranimo za naslednjo generacijo
-                //starsi.erase(starsi.begin() + stars1); /// ga odstranimo ko smo ga uporabli
-                //int stars2 = rand() % starsi.size();
+                std::cout << "Stars1: " << starsi[stars1].hevristika << "\n";
+                */
+
+
+                stars2 = rand() % starsi.size(); /// izberemo rand drugega starsa
+                if (stars2 == stars1)
+                {
+                    stars2++; /// da nista enake velikosti
+                }
+                if (stars2 >= starsi.size()) {
+                    stars2 = 0; /// ce bi sel preko
+                }
+
+                /**
                 for (int i = 0; i < velikost; i++)
                 {
                     std::cout << starsi[stars2].kraljice[i] << " ";
-                    
                 }
-                std::cout << "Stars2 nova h: " << izracun_hevristike_HILLC(starsi[stars2].kraljice, velikost) << "\n";
-                starsi[stars2].hevristika = izracun_hevristike_HILLC(starsi[stars2].kraljice, velikost); /// izracunamo novo hevristiko
-                sahovnica.push_back(starsi[stars2]); /// si shranimo elito za naslednjo generacijo
+                std::cout << "Stars2: " << starsi[stars2].hevristika << "\n";
+                */
 
+                int lala = rand() % 100; /// pogledamo ce bomo krizali
+
+                if (lala <= krizanje_vr) {
+                    /// naredimo krizanje
+                    int stolpec = rand() % velikost; /// si izberemo stolpec ki ga bomo zamenjali
+                    int temp_v = starsi[stars1].kraljice[stolpec]; /// si shranimo vrednost kjer je kralica
+                    starsi[stars1].kraljice[stolpec] = starsi[stars2].kraljice[stolpec]; /// prekopiramo
+                    starsi[stars2].kraljice[stolpec] = temp_v; /// prekopiramo
+
+                    /*
+                    std::cout << "Izpis po krizanju!\n";
+                    for (int i = 0; i < velikost; i++)
+                    {
+                        std::cout << starsi[stars1].kraljice[i] << " ";
+                    
+                    }
+                    
+                    std::cout << "Stars1 nova h: " << izracun_hevristike_HILLC(starsi[stars1].kraljice,velikost)<< "\n";
+                    */
+                    
+                    starsi[stars1].hevristika = izracun_hevristike_HILLC(starsi[stars1].kraljice, velikost); /// izracunamo novo hevristiko
+                    
+                    /**
+                    for (int i = 0; i < velikost; i++)
+                    {
+                        std::cout << starsi[stars2].kraljice[i] << " ";
+                    
+                    }
+                    std::cout << "Stars2 nova h: " << izracun_hevristike_HILLC(starsi[stars2].kraljice, velikost) << "\n";
+                    */
+
+                    starsi[stars2].hevristika = izracun_hevristike_HILLC(starsi[stars2].kraljice, velikost); /// izracunamo novo hevristiko
+                    
+
+                }
+
+                //sahovnica.push_back(starsi[stars1]); /// si shranimo za naslednjo generacijo
+                //sahovnica.push_back(starsi[stars2]); /// si shranimo za naslednjo generacijo
+
+                ///prvo morem zbrisat vecjega
+                
+                /*
+                if (stars1 < stars2) {
+                    starsi.erase(starsi.begin() + stars2);
+                    starsi.erase(starsi.begin() + stars1);
+                }
+                else
+                {
+                    starsi.erase(starsi.begin() + stars1); /// ga odstranimo ko smo ga uporabli
+                    starsi.erase(starsi.begin() + stars2);
+                }
+                */
             }
 
+            //std::cout << "Stars1: " << stars1 << " stars2: " << stars2 << "\n";
+            /// MUTACIJA
+            int mutacija = rand() % 100;
+            if (mutacija <= mutacija_vr) {
+                ///delamo mutacijo
+                int rand_stolpec = rand() % velikost; /// mamo matriko velikost x velikost
+                int rand_vrstica = rand() % velikost; ///izbiramo 
+                
+                //std::cout << "Rand stolpec: " << rand_stolpec << " rand_vrstica: " << rand_vrstica << "\n";
+                
+                if (!(sahovnica[stars1].kraljice[rand_vrstica] == rand_stolpec && sahovnica[stars2].kraljice[rand_vrstica] == rand_stolpec ||
+                    sahovnica[stars1].kraljice[rand_vrstica] != rand_stolpec && sahovnica[stars2].kraljice[rand_vrstica] != rand_stolpec))
+                {
+                    /// prvi pogoj: imata obe kraljico na tem mestu ne rabimo spreminjat
+                    /// drugi pogoj: ali pa je doben nima in prav tako ne rabimo spreminjati 
+                    /// ampak smo negirali tako da morem spremenit
+                    /**
+                    std::cout << "Izpis sahovnice mutacijo!\n";
+                    for (int i = 0; i < sahovnica.size(); i++)
+                    {
+                        for (int j = 0; j < velikost; j++) {
+                            std::cout << sahovnica[i].kraljice[j] << " ";
+                        }
+                        std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
+                    }
+                    */
+                    int temp = sahovnica[stars1].kraljice[rand_vrstica]; /// si shranimo vrednost
+                    sahovnica[stars1].kraljice[rand_vrstica] = sahovnica[stars2].kraljice[rand_vrstica]; /// prekopiramo
+                    sahovnica[stars2].kraljice[rand_vrstica] = temp; /// prekopiramo
 
+                    /**
+                    std::cout << "Ponoven izpis sahovnice po mutaciji!\n";
+                    for (int i = 0; i < sahovnica.size(); i++)
+                    {
+                        for (int j = 0; j < velikost; j++) {
+                            std::cout << sahovnica[i].kraljice[j] << " ";
+                        }
+                        std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
+                    }
+                    */
+                }
+                ///
+                
+            }
+            if (!samo_en) {
+                sahovnica.push_back(starsi[stars1]); /// si shranimo za naslednjo generacijo
+                sahovnica.push_back(starsi[stars2]); /// si shranimo za naslednjo generacijo
 
-            starsi.erase(starsi.begin() + stars1); /// ga odstranimo ko smo ga uporabli
-            starsi.erase(starsi.begin() + stars2);
-
-            /// NAPAKA PRI ERASE POGLEJ KAK DA ZBRISES PRAVEGA!
-            /// MEL SI TUDI NAPAKO DA SE TI JE EN PONOVIL (PREPISAL JE DRUGEGA)
-
-
-            /// se mutacija
-
+                if (stars1 < stars2) {
+                    starsi.erase(starsi.begin() + stars2); // brisemo iz starsi da ga nebomo vec uporabljali
+                    starsi.erase(starsi.begin() + stars1);
+                }
+                else
+                {
+                    starsi.erase(starsi.begin() + stars1); /// ga odstranimo ko smo ga uporabli
+                    starsi.erase(starsi.begin() + stars2);
+                }
+            }
+            /// izpis sahovnice
+            /**
+            std::cout << "Ponoven izpis sahovnice zadnja v loop!\n";
+            for (int i = 0; i < sahovnica.size(); i++)
+            {
+                for (int j = 0; j < velikost; j++) {
+                    std::cout << sahovnica[i].kraljice[j] << " ";
+                }
+                std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
+            }
+            */
         }
 
 
-
+        std::sort(sahovnica.begin(), sahovnica.end(), za_sort); /// sort s svojo funkcijo
         
-
-
-        /**
-        std::cout << "Izpis elita: \n";
-        for (int i = 0; i < elita.size(); i++)
+        
+        int polozaj_nic; /// kjer je hev 0
+        //std::cout << "Ponoven izpis sahovnice zadnja v loop!\n";
+        for (int i = 0; i < sahovnica.size(); i++)
         {
-            for (int j = 0; j < velikost; j++)
-            {
-                std::cout << elita[i].kraljice[j] << " ";
+            /**
+            for (int j = 0; j < velikost; j++) {
+                std::cout << sahovnica[i].kraljice[j] << " ";
             }
-            std::cout << "hev: " << elita[i].hevristika << "\n";
+            */
+            //std::cout << "Hev: " << sahovnica[i].hevristika << "\n";
+            if (sahovnica[i].hevristika == 0) {
+                /// testiramo ce je hev 0 da smo koncali
+                polozaj_nic = i;
+                hev_nic = true;
+            }
         }
 
-        std::cout << "Izpis starsi: \n";
-        for (int i = 0; i < starsi.size(); i++)
-        {
-            for (int j = 0; j < velikost; j++)
-            {
-                std::cout << starsi[i].kraljice[j] << " ";
-            }
-            std::cout << "hev: " << starsi[i].hevristika << "\n";
-        }
-        */
-        stevec_generacij++;
+        //std::cout << "###############################################\n###############################################\n";
+
+        stevec_generacij++; /// povecamo stevilo gen
         if (hev_nic)
         {
-            //kraljice = elita[poz_hev_nic].kraljice; /// se neves katera bo
+            kraljice = sahovnica[polozaj_nic].kraljice; /// ce je nic smo koncali
             break;
+        }
+        else {
+            kraljice = sahovnica[0].kraljice; /// shranimo si prvega, ker ima najboljso hev
         }
     } while (stevec_generacij<st_generacij);
 
